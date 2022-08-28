@@ -1,0 +1,3 @@
+/home/golobii/dev/random/žvm/cmake-build-debug/CMakeFiles/vm.dir
+/home/golobii/dev/random/žvm/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/golobii/dev/random/žvm/cmake-build-debug/CMakeFiles/rebuild_cache.dir

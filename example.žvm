@@ -1,0 +1,12 @@
+@0 = 1
+@1 = 2
+
+main:
+  load_const 0
+  load_const 1
+  add
+
+---
+proc main() {
+    1 + 2
+}
