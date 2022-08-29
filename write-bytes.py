@@ -1,5 +1,3 @@
-# Writes a simple žvm program that loads two values from const pool and adds them.
-
 def make_size(x: int) -> list[int]:
     return [((x >> 8) & 0xFF), x & 0xFF]
 
