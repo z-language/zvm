@@ -8,34 +8,38 @@ def main():
 
     const_pool = [
         [
-            0x01,  # type
-            0x02,  # num of bytes
-            # value
-            0x01,
-            0x02
+            0x01, # TYPE
+            0x01, # SIZE
+            # VALUE
+            0x13
         ],
         [
-            0x01, # type
-            0x01, # num of bytes
-            # value
-            0x03
+            0x01, # TYPE
+            0x01, # SIZE
+            # VALUE
+            0x02
         ]
     ]
 
     prog = [
-        0x02, # LOAD_CONST
+        0x01, # PUSH
         0x00,
 
         0xFE, # DEBUG
+        0x13, # DUP
+        0x01, # PUSH
+        0x0A,
 
-        0x02, # LOAD_CONST
+        0x31, # JMPE
+        0x00,
+
+        0x01, # PUSH
         0x01,
 
-        0xFE, # DEBUG
-
         0x20, # ADD
+        0x30, # JMP
+        0x01,
 
-        0xFE, # DEBUG
         0xFF  # HLT
     ]
 

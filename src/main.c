@@ -8,6 +8,7 @@
 
 #define IOC(node) node->type == T_INT ? *((int*)node->data) : (char*)node->data
 #define FROM_CONST_POOL() (žvalue *) vm.const_pool[vm.prog[++i]]
+#define FREE(value) if (!value->isConst) free(value)
 
 typedef enum {
     NOOP = 0x00,
@@ -15,7 +16,7 @@ typedef enum {
     PUSH = 0x01,
     LOAD_CONST = 0x02,
     POP = 0x12,
-    DUP,
+    DUP = 0x13,
 
     ADD = 0x20,
     INCR,
@@ -29,6 +30,20 @@ typedef enum {
 } opcode;
 
 
+bool eq(žvalue *val1, žvalue *val2) {
+    if (val1->type != val2->type) return false;
+
+    switch (val1->type) {
+
+        case T_INT:
+            if (val1->integer == val2->integer) return true;
+            break;
+        case T_STR:
+            if (strcmp(val1->string, val2->string) == 0) return true;
+            break;
+    }
+    return false;
+}
 
 int main() {
     struct vm vm;
@@ -41,7 +56,8 @@ int main() {
 
 
     for (int i = 0; i < vm.size_of_prog; i++) {
-        switch (vm.prog[i]) {
+        byte opcode = vm.prog[i];
+        switch (opcode) {
             case LOAD_CONST:
                 push(FROM_CONST_POOL());
                 break;
@@ -82,15 +98,14 @@ int main() {
                         push(tmp);
                         break;
                 }
-                free(a);
-                free(b);
+                FREE(a);
+                FREE(b);
             }
                 break;
             case POP: {
                 žvalue *tmp = pop();
                 puts("Pop\n");
-                if (tmp->isConst) continue;
-                else free(tmp);
+                FREE(tmp);
             }
                 break;
             case DUP: {
@@ -115,12 +130,24 @@ int main() {
                 žvalue *b = pop();
                 žvalue *addr = FROM_CONST_POOL();
 
-                if (memcmp(a, b, sizeof(žvalue)) != 0) goto end;
+                if (!eq(a, b)) goto end;
 
                 i = addr->integer - 1;
                 end:
-                free(a);
-                free(b);
+                FREE(a);
+                FREE(b);
+            }
+                break;
+            case JMPNE: {
+                žvalue *a = pop();
+                žvalue *b = pop();
+                žvalue *addr = FROM_CONST_POOL();
+
+                if (eq(a, b)) goto end;
+
+                i = addr->integer - 1;
+                FREE(a);
+                FREE(b);
             }
                 break;
             case DEBUG:
