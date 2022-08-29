@@ -6,6 +6,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 long read_bytes(char *fileName, byte **buffer) {
     FILE *fileptr;
@@ -28,9 +29,16 @@ long read_bytes(char *fileName, byte **buffer) {
     return filelen;
 }
 
-void parse(struct vm *vm) {
+void parse(struct vm *vm, char *fileName) {
     byte *buffer;
-    long num = read_bytes("../out.žvm", &buffer);
+    long len = read_bytes(fileName, &buffer);
+    if (!len) {
+        char *format = "Couldn't open %s";
+        char *out = malloc(sizeof(char) * (strlen(format) + strlen(fileName)));
+        sprintf(out, format, fileName);
+        perror(out);
+        exit(EXIT_FAILURE);
+    }
     unsigned int index = 0;
 
     vm->version = buffer[index++];

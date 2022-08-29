@@ -7,6 +7,6 @@
 
 #include "../types.h"
 
-void parse(struct vm *vm);
+void parse(struct vm *vm, char *fileName);
 
 #endif //VM_PARSER_H

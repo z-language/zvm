@@ -9,7 +9,7 @@ def main():
             0x01, # TYPE
             0x01, # SIZE
             # VALUE
-            0x13
+            11
         ],
         [
             0x01, # TYPE
@@ -31,10 +31,8 @@ def main():
         0x31, # JMPE
         0x00,
 
-        0x01, # PUSH
-        0x01,
-
-        0x20, # ADD
+        
+        0x29, # INCR
         0x30, # JMP
         0x01,
 

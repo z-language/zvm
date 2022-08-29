@@ -3,4 +3,6 @@ project(vm C)
 
 set(CMAKE_C_STANDARD 99)
 
-add_executable(vm src/main.c src/stack/stack.c src/parser/parser.c)
+file(GLOB_RECURSE source ./src/*)
+
+add_executable(vm ${source})
