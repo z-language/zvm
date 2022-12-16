@@ -1,0 +1,4 @@
+var i = 3
+var a = 4
+
+a * i

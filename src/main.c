@@ -7,11 +7,14 @@
 #include "stack/stack.h"
 #include "types.h"
 
-typedef enum {
+typedef enum
+{
   NOOP = 0x00,
 
   PUSH = 0x01,
   LOAD_CONST = 0x02,
+  STORE_NAME = 0x03,
+  LOAD_NAME = 0x04,
   POP = 0x12,
   DUP = 0x13,
 
@@ -30,10 +33,10 @@ typedef enum {
   HLT = 0xff
 } opcode;
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
   if (argc <= 1)
     throw("Not enough arguments supplied.\n");
-
 
   struct vm vm;
   parse(&vm, argv[1]);
@@ -43,12 +46,19 @@ int main(int argc, char **argv) {
   printf("size of program: %d\n", vm.size_of_prog);
   printf("%d\n", vm.const_pool[0]->integer);*/
 
-  for (; ip < vm.size_of_prog; ip++) {
+  for (; ip < vm.size_of_prog; ip++)
+  {
     byte opcode = vm.prog[ip];
-    switch (opcode) {
+    switch (opcode)
+    {
     case LOAD_CONST:
       ins_load_const(&vm);
-
+      break;
+    case STORE_NAME:
+      ins_store_name(&vm);
+      break;
+    case LOAD_NAME:
+      ins_load_name(&vm);
       break;
     case PUSH:
       ins_push(&vm);
@@ -58,6 +68,9 @@ int main(int argc, char **argv) {
       break;
     case SUB:
       ins_sub();
+      break;
+    case MUL:
+      ins_mul();
       break;
     case INCR:
       ins_incr();

@@ -1,0 +1,14 @@
+const_pool = []
+
+prog = [
+    0x01, # PUSH
+    0x06,
+
+    0x03, # STORE_NAME
+    0x00,
+
+    0x04, # LOAD_NAME
+    0x00,
+
+    0xFE
+]

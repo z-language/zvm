@@ -1,5 +1,5 @@
 # from count_to_10 import const_pool, prog
-from basic import const_pool, prog
+from variables import const_pool, prog
 
 def make_size(x: int) -> list[int]:
     return [((x >> 8) & 0xFF), x & 0xFF]
@@ -16,7 +16,7 @@ def main():
     data.extend(make_size(len(prog)))
     data.extend(prog)
 
-    with open("out.žvm", "wb") as f:
+    with open("debug/main", "wb") as f:
         f.write(bytearray(data))
 
 

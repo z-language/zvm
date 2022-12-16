@@ -12,18 +12,24 @@
 #include <unistd.h>
 
 #define FROM_CONST_POOL() (žvalue *)vm->const_pool[vm->prog[++ip]]
-#define FREE(value)                                                            \
-  if (!value->isConst)                                                         \
+#define FREE(value)    \
+  if (!value->isConst) \
   free(value)
 #define VALUE(e) (e->type == T_INT ? e->integer : e->string)
 
+#define MAX_NAMES 20
+
+žvalue *names[MAX_NAMES];
+
 unsigned int ip = 0;
 
-bool eq(žvalue *val1, žvalue *val2) {
+bool eq(žvalue *val1, žvalue *val2)
+{
   if (val1->type != val2->type)
     return false;
 
-  switch (val1->type) {
+  switch (val1->type)
+  {
 
   case T_INT:
     if (val1->integer == val2->integer)
@@ -39,7 +45,24 @@ bool eq(žvalue *val1, žvalue *val2) {
 
 void ins_load_const(struct vm *vm) { push(FROM_CONST_POOL()); }
 
-void ins_push(struct vm *vm) {
+void ins_load_name(struct vm *vm)
+{
+  byte index = vm->prog[++ip];
+  žvalue *tmp = malloc(sizeof(žvalue));
+  memcpy(tmp, names[index], sizeof(žvalue));
+
+  push(tmp);
+}
+void ins_store_name(struct vm *vm)
+{
+  žvalue *tmp = pop();
+  byte index = vm->prog[++ip];
+
+  names[index] = tmp;
+}
+
+void ins_push(struct vm *vm)
+{
   žvalue *tmp = malloc(sizeof(žvalue));
 
   tmp->type = T_INT;
@@ -49,16 +72,19 @@ void ins_push(struct vm *vm) {
   push(tmp);
 }
 
-void ins_add() {
+void ins_add()
+{
   žvalue *b = pop();
   žvalue *a = pop();
 
-  if (a->type != b->type) {
+  if (a->type != b->type)
+  {
     throw("ADD: Executed the add instruction on incompatible types.");
   }
   žvalue *tmp = malloc(sizeof(žvalue));
 
-  switch (a->type) {
+  switch (a->type)
+  {
 
   case T_STR:
     tmp->type = T_STR;
@@ -80,11 +106,13 @@ void ins_add() {
   FREE(b);
 }
 
-void ins_mul() {
+void ins_mul()
+{
   žvalue *b = pop();
   žvalue *a = pop();
 
-  if (a->type != b->type || a->type != T_INT) {
+  if (a->type != b->type || a->type != T_INT)
+  {
     throw("SUB: Tried to subtract incorrect types.");
   }
   žvalue *tmp = malloc(sizeof(žvalue));
@@ -97,45 +125,52 @@ void ins_mul() {
   FREE(b);
 }
 
-void ins_sub() {
+void ins_sub()
+{
   žvalue *b = pop();
   žvalue *a = pop();
 
-  if (a->type != b->type || a->type != T_INT) {
+  if (a->type != b->type || a->type != T_INT)
+  {
     throw("SUB: Tried to subtract incorrect types.");
   }
   žvalue *tmp = malloc(sizeof(žvalue));
 
   tmp->type = T_INT;
-  tmp->integer = a->integer + b->integer;
+  tmp->integer = a->integer - b->integer;
   push(tmp);
 
   FREE(a);
   FREE(b);
 }
 
-void ins_pop() {
+void ins_pop()
+{
   žvalue *tmp = pop();
   FREE(tmp);
 }
 
-void ins_dup() {
+void ins_dup()
+{
   žvalue *tmp = top();
   žvalue *new = malloc(sizeof(žvalue));
   memcpy(new, tmp, sizeof(žvalue));
   push(new);
 }
 
-void ins_jmp(struct vm *vm) {
+void ins_jmp(struct vm *vm)
+{
   žvalue *addr = FROM_CONST_POOL();
 
-  if (addr->type != T_INT) {
+  if (addr->type != T_INT)
+  {
     throw("JMP: Provided address is not a number.");
   }
   ip = addr->integer - 1;
 }
 
-void ins_jmpe(struct vm *vm) {
+void ins_jmpe(struct vm *vm)
+{
   žvalue *a = pop();
   žvalue *b = pop();
   žvalue *addr = FROM_CONST_POOL();
@@ -149,7 +184,8 @@ end:
   FREE(b);
 }
 
-void ins_sys() {
+void ins_sys()
+{
   žvalue *d = pop();
   žvalue *c = pop();
   žvalue *b = pop();
@@ -163,7 +199,8 @@ void ins_sys() {
   FREE(d);
 }
 
-void ins_jmpne(struct vm *vm) {
+void ins_jmpne(struct vm *vm)
+{
   žvalue *a = pop();
   žvalue *b = pop();
   žvalue *addr = FROM_CONST_POOL();

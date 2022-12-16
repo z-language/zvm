@@ -11,6 +11,8 @@
 extern unsigned int ip;
 
 void ins_load_const(struct vm *vm);
+void ins_load_name(struct vm *vm);
+void ins_store_name(struct vm *vm);
 void ins_push(struct vm *vm);
 
 void ins_add();
