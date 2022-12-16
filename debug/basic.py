@@ -1,0 +1,13 @@
+const_pool = []
+
+prog = [
+    0x01, # PUSH
+    0x01,
+
+    0x01, # PUSH
+    0x02,
+
+    0x20, # ADD
+
+    0xFE
+]

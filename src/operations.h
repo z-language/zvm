@@ -3,6 +3,7 @@
 //
 
 #ifndef VM_OPERATIONS_H
+
 #define VM_OPERATIONS_H
 
 #include "types.h"
@@ -14,13 +15,15 @@ void ins_push(struct vm *vm);
 
 void ins_add();
 void ins_sub();
+void ins_mul();
 
 void ins_pop();
 void ins_dup();
 void ins_incr();
 
+void ins_sys();
 void ins_jmp(struct vm *vm);
 void ins_jmpe(struct vm *vm);
 void ins_jmpne(struct vm *vm);
 
-#endif //VM_OPERATIONS_H
+#endif // VM_OPERATIONS_H

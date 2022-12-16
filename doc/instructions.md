@@ -7,7 +7,7 @@ typedef unsigned char byte;
 
 struct constant {
     byte type; // type of constant (see types enum) TODO
-    byte num_of_bytes; // number of bytes this constant occupies
+    byte num_of_bytes; // number of bytes this constant occupies    
     byte value[num_of_bytes]; // the value of the constant
 };
 

@@ -7,34 +7,32 @@
 
 #include <stdbool.h>
 
-#define T_CONST 1010
-
 typedef unsigned char byte;
 
 enum Type {
-    T_STR,
-    T_INT,
+  T_STR = 0x01,
+  T_INT = 0x02,
 };
 
 typedef struct {
-    enum Type type;
-    bool isConst;
-    union {
-        int integer;
-        char *string;
-    };
+  enum Type type;
+  bool isConst;
+  union {
+    int integer;
+    char *string;
+  };
 
 } žvalue;
 
 struct vm {
-    byte version; // bytecode format version
+  byte version; // bytecode format version
 
-    short size_of_const_pool; // number of constants in constant pool
-    žvalue **const_pool;
+  short size_of_const_pool; // number of constants in constant pool
+  žvalue **const_pool;
 
-    short size_of_prog;
-    byte *prog; // an array of bytes/instructions that will be loaded into memory and executed one by one
+  short size_of_prog;
+  byte *prog; // an array of bytes/instructions that will be loaded into memory
+              // and executed one by one
 };
 
-
-#endif //VM_TYPES_H
+#endif // VM_TYPES_H

@@ -1,2 +1,5 @@
 /cmake-build-debug
+/build
 /.vscode
+/.idea
+*/__pycache__
