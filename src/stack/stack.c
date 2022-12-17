@@ -17,16 +17,18 @@ void push(žvalue *data)
 void display()
 {
     žvalue *current;
-    for (unsigned int i = 0; i < sp; i++) {
+    for (unsigned int i = 0; i < sp; i++)
+    {
         current = stack[i];
-        switch (current->type) {
+        switch (current->type)
+        {
 
-            case T_STR:
-                printf("%s\n", current->string);
-                break;
-            case T_INT:
-                printf("%d\n", current->integer);
-                break;
+        case T_STR:
+            printf("%s\n", current->string);
+            break;
+        case T_INT:
+            printf("%d\n", current->integer);
+            break;
         }
     }
 }

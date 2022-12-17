@@ -184,6 +184,25 @@ end:
   FREE(b);
 }
 
+static unsigned int ip_save = 0;
+void ins_call(struct vm *vm)
+{
+  ip_save = ip + 1;
+  žvalue *addr = FROM_CONST_POOL();
+
+  if (addr->type != T_INT)
+  {
+    throw("CALL: Provided address is not a number.");
+  }
+
+  ip = addr->integer - 1;
+}
+
+void ins_return()
+{
+  ip = ip_save;
+}
+
 void ins_sys()
 {
   žvalue *d = pop();

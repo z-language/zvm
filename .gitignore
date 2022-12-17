@@ -2,4 +2,5 @@
 /build
 /.vscode
 /.idea
+/debug
 */__pycache__

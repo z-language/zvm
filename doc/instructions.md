@@ -13,9 +13,9 @@ struct constant {
 
 struct source {
     byte version; // bytecode format version
-    short size_of_const_pool; // number of constants in constant pool
-    struct constant const_pool[size_of_const_pool];
     short size_of_prog;
     byte prog[size_of_prog]; // an array of bytes/instructions that will be loaded into memory and executed one by one
+    short size_of_const_pool; // number of constants in constant pool
+    struct constant const_pool[size_of_const_pool];
 };
 ```

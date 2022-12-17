@@ -28,6 +28,9 @@ typedef enum
   JMPE = 0x31,
   JMPNE = 0x32,
 
+  CALL = 0x40,
+  RETURN = 0x41,
+
   SYS = 0xfd,
   DEBUG = 0xfe,
   HLT = 0xff
@@ -89,6 +92,12 @@ int main(int argc, char **argv)
       break;
     case JMPNE:
       ins_jmpne(&vm);
+      break;
+    case CALL:
+      ins_call(&vm);
+      break;
+    case RETURN:
+      ins_return();
       break;
     case SYS:
       ins_sys();

@@ -23,6 +23,9 @@ void ins_pop();
 void ins_dup();
 void ins_incr();
 
+void ins_call(struct vm *vm);
+void ins_return();
+
 void ins_sys();
 void ins_jmp(struct vm *vm);
 void ins_jmpe(struct vm *vm);
