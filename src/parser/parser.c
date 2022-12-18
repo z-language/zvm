@@ -62,7 +62,7 @@ void parse(struct vm *vm, char *fileName)
         new->type = buffer[index++];
 
         byte num_of_bytes = buffer[index++];
-        byte value[num_of_bytes];
+        byte *value = malloc(1);
 
         for (unsigned int j = 0; j < num_of_bytes; j++)
         {
@@ -80,4 +80,6 @@ void parse(struct vm *vm, char *fileName)
         new->isConst = true;
         vm->const_pool[i] = new;
     }
+
+    free(buffer);
 }

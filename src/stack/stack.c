@@ -22,7 +22,6 @@ void display()
         current = stack[i];
         switch (current->type)
         {
-
         case T_STR:
             printf("%s\n", current->string);
             break;
