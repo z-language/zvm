@@ -23,28 +23,27 @@
 
 žvalue *names[MAX_NAMES];
 
-unsigned int call_stack[200];
+unsigned int call_stack[MAX_CALL_STACK_SIZE];
 unsigned int *call_stack_ptr = call_stack;
 
 unsigned int ip = 0;
 
-bool eq(žvalue *val1, žvalue *val2) {
-    if (val1->type != val2->type)
-        return false;
-
-    switch (val1->type) {
-
-        case T_INT:
-            if (val1->integer == val2->integer)
-                return true;
-            break;
-        case T_STR:
-            if (strcmp(val1->string, val2->string) == 0)
-                return true;
-            break;
+#define CMP(val1, val2, op, output)               \
+    if (val1->type != val2->type)           \
+        output = false;                     \
+    else {                                  \
+        switch (val1->type) {              \
+            case T_INT:                         \
+                if (val1->integer op val2->integer) \
+                    output = true;                        \
+                break;                              \
+            case T_STR:                         \
+                if (strcmp(val1->string, val2->string) op 0)\
+                    output = true;                        \
+                break;                              \
+        }                                           \
     }
-    return false;
-}
+
 
 void ins_load_const(struct vm *vm) { push(FROM_CONST_POOL()); }
 
@@ -92,14 +91,14 @@ void ins_add() {
             strcat(new, a->string);
             strcat(new, b->string);
             tmp->string = new;
-            push(tmp);
             break;
         case T_INT:
             tmp->type = T_INT;
             tmp->integer = a->integer + b->integer;
-            push(tmp);
             break;
     }
+
+    push(tmp);
     FREE(a);
     FREE(b);
 }
@@ -109,12 +108,46 @@ void ins_mul() {
     žvalue *a = pop();
 
     if (a->type != b->type || a->type != T_INT) {
-        throw("SUB: Tried to subtract incorrect types.");
+        throw("SUB: Tried to multiply incorrect types.");
     }
     žvalue *tmp = malloc(sizeof(žvalue));
 
     tmp->type = T_INT;
     tmp->integer = a->integer * b->integer;
+    push(tmp);
+
+    FREE(a);
+    FREE(b);
+}
+
+void ins_div() {
+    žvalue *b = pop();
+    žvalue *a = pop();
+
+    if (a->type != b->type || a->type != T_INT) {
+        throw("DIV: Tried to divide incorrect types.");
+    }
+    žvalue *tmp = malloc(sizeof(žvalue));
+
+    tmp->type = T_INT;
+    tmp->integer = a->integer / b->integer;
+    push(tmp);
+
+    FREE(a);
+    FREE(b);
+}
+
+void ins_mod() {
+    žvalue *b = pop();
+    žvalue *a = pop();
+
+    if (a->type != b->type || a->type != T_INT) {
+        throw("MOD: Tried to execute on incorrect types.");
+    }
+    žvalue *tmp = malloc(sizeof(žvalue));
+
+    tmp->type = T_INT;
+    tmp->integer = a->integer % b->integer;
     push(tmp);
 
     FREE(a);
@@ -159,21 +192,49 @@ void ins_jmp(struct vm *vm) {
     ip = addr->integer - 1;
 }
 
-void ins_jmpe(struct vm *vm) {
-    žvalue *a = pop();
-    žvalue *b = pop();
-    žvalue *addr = FROM_CONST_POOL();
+void ins_jmpf() {
+    žvalue *forward = pop();
 
-    if (!eq(a, b))
-        goto end;
+    if (forward->type != T_INT) {
+        throw("JMPF: Provided address is not a number.");
+    }
+    ip += forward->integer;
 
-    ip = addr->integer - 1;
-    end:
-    FREE(a);
-    FREE(b);
+    FREE((forward));
+}
+
+void ins_jmpb() {
+    žvalue *back = pop();
+
+    if (back->type != T_INT) {
+        throw("JMPB: Provided address is not a number.");
+    }
+    ip -= back->integer;
+
+    FREE((back));
+}
+
+void ins_jmpt() {
+    žvalue *forward = pop();
+    žvalue *cond = pop();
+
+    if (forward->type != T_INT) {
+        throw("JMPT: Provided address is not a number.");
+    }
+
+    if (cond->integer != 0) {
+        ip += forward->integer;
+    }
+
+    FREE(cond);
+    FREE(forward);
 }
 
 void ins_call(struct vm *vm) {
+    if ((call_stack_ptr - call_stack) + 1 == MAX_CALL_STACK_SIZE) {
+        throw("Exceeded the call stack size!\n");
+    }
+
     *(++call_stack_ptr) = ip + 1;
     žvalue *addr = FROM_CONST_POOL();
 
@@ -202,16 +263,119 @@ void ins_sys() {
     FREE(d);
 }
 
-void ins_jmpne(struct vm *vm) {
-    žvalue *a = pop();
+void ins_eq() {
     žvalue *b = pop();
-    žvalue *addr = FROM_CONST_POOL();
+    žvalue *a = pop();
 
-    if (eq(a, b))
-        goto end;
+    žvalue *tmp = malloc(sizeof(žvalue));
+    tmp->isConst = false;
+    tmp->type = T_INT;
 
-    ip = addr->integer - 1;
-    end:
+    bool equals = false;
+    CMP(a, b, ==, equals);
+    tmp->integer = equals;
+
+    push(tmp);
+    FREE(a);
+    FREE(b);
+}
+
+void ins_and() {
+    žvalue *b = pop();
+    žvalue *a = pop();
+
+    žvalue *tmp = malloc(sizeof(žvalue));
+    tmp->isConst = false;
+    tmp->type = T_INT;
+
+    bool equals = false;
+    CMP(a, b, &&, equals);
+    tmp->integer = equals;
+
+    push(tmp);
+    FREE(a);
+    FREE(b);
+}
+void ins_or() {
+    žvalue *b = pop();
+    žvalue *a = pop();
+
+    žvalue *tmp = malloc(sizeof(žvalue));
+    tmp->isConst = false;
+    tmp->type = T_INT;
+
+    bool equals = false;
+    CMP(a, b, ||, equals);
+    tmp->integer = equals;
+
+    push(tmp);
+    FREE(a);
+    FREE(b);
+}
+
+void ins_greater_than() {
+    žvalue *b = pop();
+    žvalue *a = pop();
+
+    žvalue *tmp = malloc(sizeof(žvalue));
+    tmp->isConst = false;
+    tmp->type = T_INT;
+
+    bool equals = false;
+    CMP(a, b, >, equals);
+    tmp->integer = equals;
+
+    push(tmp);
+    FREE(a);
+    FREE(b);
+}
+
+void ins_greater_or_eq() {
+    žvalue *b = pop();
+    žvalue *a = pop();
+
+    žvalue *tmp = malloc(sizeof(žvalue));
+    tmp->isConst = false;
+    tmp->type = T_INT;
+
+    bool equals = false;
+    CMP(a, b, >=, equals);
+    tmp->integer = equals;
+
+    push(tmp);
+    FREE(a);
+    FREE(b);
+}
+
+void ins_less_than() {
+    žvalue *b = pop();
+    žvalue *a = pop();
+
+    žvalue *tmp = malloc(sizeof(žvalue));
+    tmp->isConst = false;
+    tmp->type = T_INT;
+
+    bool equals = false;
+    CMP(a, b, <, equals);
+    tmp->integer = equals;
+
+    push(tmp);
+    FREE(a);
+    FREE(b);
+}
+void ins_less_or_eq() {
+    žvalue *b = pop();
+    žvalue *a = pop();
+
+    žvalue *tmp = malloc(sizeof(žvalue));
+    tmp->isConst = false;
+    tmp->type = T_INT;
+
+    bool equals = false;
+    CMP(a, b, <=, equals);
+    tmp->integer = equals;
+
+    push(tmp);
     FREE(a);
     FREE(b);
 }

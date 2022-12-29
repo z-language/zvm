@@ -62,7 +62,7 @@ void parse(struct vm *vm, char *fileName)
         new->type = buffer[index++];
 
         byte num_of_bytes = buffer[index++];
-        byte *value = malloc(1);
+        byte *value = malloc(num_of_bytes);
 
         for (unsigned int j = 0; j < num_of_bytes; j++)
         {
